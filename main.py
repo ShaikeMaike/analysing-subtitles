@@ -1,5 +1,6 @@
 import json
 from flask import jsonify
+import os
 
 # code for extracting bad words
 
@@ -27,53 +28,17 @@ def extract_bad_words(year):
 
     return dic.items()
 
+
 result = {}
 
 decade = 1910
 while decade != 2020:
-    res = extract_bad_words(str(decade))
+    res = extract_bad_words(os.path.join('decades', str(decade)))
     result[decade] = res
     decade += 10
 
-print(result)
-# code for change bad words over years
-# _1910 = extract_bad_words("1910")
-# result["_1910"] = _1910
-# print(_1910)
-#
-_1920 = extract_bad_words(str(1920))
-print(_1920)
-#
-# _1930 = extract_bad_words("1930")
-# print(_1930)
-#
-# _1940 = extract_bad_words("1940")
-# print(_1940)
-#
-# _1950 = extract_bad_words("1950")
-# print(_1950)
-#
-# _1960 = extract_bad_words("1960")
-# print(_1960)
-#
-# _1960 = extract_bad_words("1970")
-# print(_1960)
-#
-# _1960 = extract_bad_words("1980")
-# print(_1960)
-#
-# _1960 = extract_bad_words("1990")
-# print(_1960)
-#
-# _1960 = extract_bad_words("2000")
-# print(_1960)
-#
-# _1960 = extract_bad_words("2010")
-# print(_1960)
-#
-#
-with open('result_path.json', 'w') as f:
-    json.dump(jsonify(result), f)
+with open('result.txt', 'w') as f:
+    f.write(result)
 f.close()
 
 # code for change bad words over genres
