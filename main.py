@@ -1,5 +1,7 @@
 import json
 from flask import jsonify
+import os
+import csv
 
 # code for extracting bad words
 
@@ -27,53 +29,41 @@ def extract_bad_words(year):
 
     return dic.items()
 
-result = {}
 
-decade = 1910
-while decade != 2020:
-    res = extract_bad_words(str(decade))
-    result[decade] = res
-    decade += 10
+def generate_bad_words_by_decades():
+    decade = 1910
+    with open('result-decade.csv', mode='w') as csv_file:
 
-print(result)
-# code for change bad words over years
-# _1910 = extract_bad_words("1910")
-# result["_1910"] = _1910
-# print(_1910)
-#
-_1920 = extract_bad_words(str(1920))
-print(_1920)
-#
-# _1930 = extract_bad_words("1930")
-# print(_1930)
-#
-# _1940 = extract_bad_words("1940")
-# print(_1940)
-#
-# _1950 = extract_bad_words("1950")
-# print(_1950)
-#
-# _1960 = extract_bad_words("1960")
-# print(_1960)
-#
-# _1960 = extract_bad_words("1970")
-# print(_1960)
-#
-# _1960 = extract_bad_words("1980")
-# print(_1960)
-#
-# _1960 = extract_bad_words("1990")
-# print(_1960)
-#
-# _1960 = extract_bad_words("2000")
-# print(_1960)
-#
-# _1960 = extract_bad_words("2010")
-# print(_1960)
-#
-#
-with open('result_path.json', 'w') as f:
-    json.dump(jsonify(result), f)
-f.close()
+        while decade != 2020:
+            result = extract_bad_words(os.path.join('decades', str(decade)))
+            fieldnames = ['decade', 'bad word', 'number of appearance']
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            writer.writeheader()
 
-# code for change bad words over genres
+            for res in result:
+                writer.writerow({'decade': decade, 'bad word': res[0], 'number of appearance': res[1]})
+
+            decade += 10
+    csv_file.close()
+
+
+def generate_bad_words_by_score():
+    score = 0
+    with open('result-score.csv', mode='w') as csv_file:
+
+        while score != 9:
+            result = extract_bad_words(os.path.join('score', 'score_' + str(score)))
+            fieldnames = ['score', 'bad word', 'number of appearance']
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            writer.writeheader()
+
+            for res in result:
+                writer.writerow({'score': score, 'bad word': res[0], 'number of appearance': res[1]})
+
+            score += 1
+    csv_file.close()
+
+
+if __name__ == '__main__':
+    generate_bad_words_by_decades()
+    generate_bad_words_by_score()
