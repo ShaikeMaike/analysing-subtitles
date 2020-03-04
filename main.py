@@ -29,16 +29,29 @@ def extract_bad_words(year):
                 else:
                     dic[word] = 1
 
-    # return dic.items()
     return dic
+
+
+def graph_for_number_of_words(number_of_words, kind): 
+    word_counter = collections.Counter(number_of_words)
+    lst = word_counter.most_common(10)
+    df = pd.DataFrame(lst, columns=[kind, 'Number'])
+    # df.plot.title(str(decate))
+    df.plot.bar(x=kind, y='Number')
+    plt.show()
 
 
 def generate_bad_words_by_decades():
     decade = 1910
+    number_of_words = dict()
     with open('result-decade.csv', mode='w') as csv_file:
 
         while decade != 2020:
             result = extract_bad_words(os.path.join('decades', str(decade)))
+            if len(result.keys()) == 0:
+                decade += 10
+                continue
+            print(result)
             fieldnames = ['decade', 'bad word', 'number of appearance']
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
             writer.writeheader()
@@ -46,12 +59,19 @@ def generate_bad_words_by_decades():
             for res in result:
                 writer.writerow({'decade': decade, 'bad word': res[0], 'number of appearance': res[1]})
 
+            number_of_words[str(decade)] = len(result.keys())
             decade += 10
+
+        graph_for_number_of_words(number_of_words, 'Decade')
+
+
     csv_file.close()
 
 
 def generate_bad_words_by_score():
     score = 0
+    number_of_words = dict()
+
     with open('result-score.csv', mode='w') as csv_file:
 
         while score != 9:
@@ -62,18 +82,23 @@ def generate_bad_words_by_score():
 
             for res in result:
                 writer.writerow({'score': score, 'bad word': res[0], 'number of appearance': res[1]})
+            number_of_words[str(score)] = len(result.keys())
 
             score += 1
+        graph_for_number_of_words(number_of_words, 'Score')
+
     csv_file.close()
 
 
 def generate_bad_words_by_genres():
+    number_of_words = dict()
+
     with open('result-genre.csv', mode='w') as csv_file:
 
         for genre in ['Western', 'War', 'TV', 'Thriller', 'Science', 'Romance', 'Mystery', 'Music',
                       'Horror', 'History', 'Foreign', 'Fantasy', 'Family', 'Drama', 'Documentary',
                       'Crime', 'Comedy', 'Animation', 'Adventure', 'Action']:
-            result = extract_bad_words(os.path.join('genres', genre))
+            result = extract_bad_words(os.path.join('generes', genre))
             fieldnames = ['genre', 'bad word', 'number of appearance']
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
             writer.writeheader()
@@ -81,11 +106,9 @@ def generate_bad_words_by_genres():
             for res in result:
                 writer.writerow({'genre': genre, 'bad word': res[0], 'number of appearance': res[1]})
 
-            word_counter = collections.Counter(result)
-            lst = word_counter.most_common(10)
-            df = pd.DataFrame(lst, columns=['Word', 'Count'])
-            df.plot.bar(x='Word', y='Count')
-            plt.show()
+            number_of_words[genre] = len(result.keys())
+        graph_for_number_of_words(number_of_words, 'Genere')
+
 
     csv_file.close()
 
@@ -140,6 +163,7 @@ def generate_bad_words_genre_by_decades():
                 for res in result:
                     writer.writerow({'decade': decade, 'genre': genre, 'bad word': res[0],
                                      'number of appearance': res[1]})
+
 
             decade += 10
 
