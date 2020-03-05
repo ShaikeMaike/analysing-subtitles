@@ -215,9 +215,94 @@ def generate_bad_words_genre_by_decades():
 #              height=400)
 #     fig.show()
 
+
+import plotly.graph_objects as go
+import math
+
 if __name__ == '__main__':
 
-    generate_bad_words_by_decades()
+    # data = px.data.gapminder()
+    #
+    # data_canada = data[data.country == 'Canada']
+    # fig = px.bar(data_canada, x='year', y='pop',
+    #              hover_data=['lifeExp', 'gdpPercap'], color='lifeExp',
+    #              labels={'pop': 'population of Canada'}, height=400)
+    # fig.show()
+    f = open("bad-words.txt", "r")
+    words = f.read()
+    words = words.split("\n")
+    del words[0]
+
+    decade = 1910
+    number_of_words = dict()
+    while decade != 2020:
+        result = extract_bad_words(os.path.join('decades', str(decade)))
+        if len(result.keys()) == 0:
+            decade += 10
+            continue
+
+        number_of_words[str(decade)] = result
+
+        # word_counter = collections.Counter(result)
+        # lst = word_counter.most_common(10)
+        # # print(decade, lst[0])
+        # df = pd.DataFrame(lst, columns=['Word', 'Count'])
+        # # df.plot.title(str(decate))
+        # df.plot.bar(x='Word', y='Count')
+        # plt.show()
+
+        decade += 10
+    max_values = {}
+    min_values = {}
+
+    for word in words:
+        for decade in number_of_words:
+            if word in number_of_words[decade]:
+                if word in max_values:
+                    if number_of_words[decade][word] > max_values[word]['percent']:
+                        max_values[word] = {'decade': decade, 'percent': int(number_of_words[decade][word])}
+                else:
+                    max_values[word] = {'decade': decade, 'percent': int(number_of_words[decade][word])}
+                if word in min_values:
+
+                    if number_of_words[decade][word] <= min_values[word]['percent']:
+                        min_values[word] = {'decade': decade, 'percent': int(number_of_words[decade][word])}
+                else:
+                    min_values[word] = {'decade': decade, 'percent': int(number_of_words[decade][word])}
+
+    # words = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    #           'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    y_max = []
+    y_min = []
+    words_in_both = []
+
+    for word in words:
+        if word in max_values and word in min_values:
+            words_in_both.append(word)
+            y_max.append(max_values[word]['percent'])
+            y_min.append(min_values[word]['percent'])
+
+
+
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=words_in_both,
+        y=y_max,
+        name='max difference',
+        marker_color='indianred'
+    ))
+    fig.add_trace(go.Bar(
+        x=words_in_both,
+        y=y_min,
+        name='min difference',
+        marker_color='lightsalmon'
+    ))
+
+    # Here we modify the tickangle of the xaxis, resulting in rotated labels.
+    fig.update_layout(barmode='group', xaxis_tickangle=-45)
+    fig.show()
+    # generate_bad_words_by_decades()
     # generate_bad_words_by_score()
     # generate_bad_words_by_genres()
     # generate_bad_words_score_by_decades()
